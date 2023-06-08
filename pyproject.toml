@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "dynamic-modules"
+version = "0.1.0"
+description = ""
+authors = ["NimajnebEC <nimajnebec@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{ include = "dynamic_modules", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
