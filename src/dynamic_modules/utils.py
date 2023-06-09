@@ -13,7 +13,7 @@ __all__ = (
     "iter_submodules",
     "get_stack_module_up",
     "get_foreign_module",
-    "get_parent",
+    "get_module_parent",
     "is_package",
     "get_module",
 )
@@ -147,13 +147,18 @@ def get_module(name: str, package: Union[str, ModuleType, None] = None) -> Modul
     -------
     ModuleType
         The imported module.
+
+    Raises
+    ------
+    ImportError
+        Raised when there is an error importing the module.
     """
     if isinstance(package, ModuleType):
         package = package.__name__
     return importlib.import_module(name, package)
 
 
-def get_parent(module: ModuleType) -> ModuleType:
+def get_module_parent(module: ModuleType) -> ModuleType:
     """Gets the parent package of the specified module.
 
     Parameters
