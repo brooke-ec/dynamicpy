@@ -1,4 +1,4 @@
-import dynamic_modules.errors as errors
+import dynamicpy.errors as errors
 from typing import Iterator, Union
 from types import ModuleType
 import importlib.machinery

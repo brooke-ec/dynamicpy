@@ -1,14 +1,13 @@
 [tool.poetry]
-name = "dynamic-modules"
+name = "dynamicpy"
 version = "0.1.0"
-description = ""
+description = "A python module for dynamically importing modules to improve expandability."
 authors = ["NimajnebEC <nimajnebec@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{ include = "dynamic_modules", from = "src" }]
+packages = [{ include = "dynamicpy", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-
 
 [tool.poetry.group.dev.dependencies]
 flake8-length = "^0.3.1"

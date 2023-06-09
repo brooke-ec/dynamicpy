@@ -1,5 +1,5 @@
 from typing import Union, Optional
-from dynamic_modules import utils
+from dynamicpy import utils
 from types import ModuleType
 
 __all__ = ("DynamicLoader",)
