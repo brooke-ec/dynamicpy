@@ -1,7 +1,6 @@
 __all__ = (
     "DynamicModulesError",
-    "NoEligibleModulesError",
-    "ExpectedPackageError",
+    "NotPackageError",
     "NoParentError",
 )
 
@@ -10,11 +9,11 @@ class DynamicModulesError(Exception):
     """Base exception class for the dynamic modules module."""
 
 
-class NoEligibleModulesError(Exception):
-    """Raised when no eligible modules are found from the `traverse_stack` function."""
+class NoForeignModulesError(DynamicModulesError):
+    """Exception raised when no foreign modules could be found."""
 
 
-class ExpectedPackageError(DynamicModulesError):
+class NotPackageError(DynamicModulesError):
     """Exception raised when function expected a package but got a module."""
 
 

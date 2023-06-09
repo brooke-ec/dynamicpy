@@ -1,5 +1,5 @@
-from typing import Iterator, Callable, Union
 import dynamic_modules.errors as errors
+from typing import Iterator, Union
 from types import ModuleType
 import importlib.machinery
 import importlib.util
@@ -9,40 +9,81 @@ import pkgutil
 import sys
 
 __all__ = (
-    "traverse_stack",
+    "iter_stack_modules",
     "iter_submodules",
+    "get_stack_module_up",
+    "get_foreign_module",
     "get_parent",
     "is_package",
     "get_module",
 )
 
 
-def traverse_stack(predicate: Callable[[str], bool]) -> ModuleType:
-    """Traverses up the stack until a module is found that matches the specified predicate.
+def iter_stack_modules(offset: int = 1) -> Iterator[str]:
+    """Yields the containing module name for every frame in the stack.
 
     Parameters
     ----------
-    predicate : Callable[[str], bool]
-        Predicate takes the module name, if `True` is returned traversal is stopped and the module is returned by the function.
+    offset : int
+        Offset up the stack to start iterating from.
+
+    Yields
+    ------
+    str
+        The name of the frame's containing module.
+    """
+    frame = sys._getframe(offset)
+    while frame is not None:
+        yield frame.f_globals.get("__name__", "")
+        frame = frame.f_back
+
+
+def get_stack_module_up(amount: int) -> str:
+    """Get the module name of the frame `amount` steps up the stack.
+
+    If `amount` = 0 then the name of the module this function is called from will be returned.
+
+    Parameters
+    ----------
+    amount : int
+        Number of steps up stack to get the module name of.
 
     Returns
     -------
-    ModuleType
-        The first module in the stack that meets the predicate.
+    str
+        The module name of the frame.
+    """
+    return next(iter_stack_modules(amount + 2))
+
+
+def get_foreign_module(just_module: bool = False) -> str:
+    """Gets the name of the first module with a different top-level package found in the stack.
+
+    Parameters
+    ----------
+    just_module : bool, optional
+        If `True` will also look for sibling modules in the same package, `False` by default.
+
+    Returns
+    -------
+    str
+        The name of the foreign module.
 
     Raises
     ------
-    EndOfStackError
-        The end of the stack has been reached and no eligible modules have been found.
+    NoForeignModulesError
+        Raised when no foreign module could be found.
     """
-    frame = sys._getframe(1)
-    while True:
-        name = frame.f_globals.get("__name__", "")
-        if predicate(name):
-            return get_module(name)
-        frame = frame.f_back
-        if frame is None:
-            raise errors.NoEligibleModulesError("No eligible modules in stack.")
+    # get module name of caller
+    location = get_stack_module_up(1)
+    if not just_module:
+        location = location.split(".")[0]
+
+    # iterate through stack unil foreign module found
+    for module in iter_stack_modules(2):
+        if module != location and (just_module or not module.startswith(location + ".")):
+            return module
+    raise errors.NoForeignModulesError("Could not find any foreign modules in the stack.")
 
 
 def iter_submodules(package: ModuleType) -> Iterator[importlib.machinery.ModuleSpec]:
@@ -64,7 +105,7 @@ def iter_submodules(package: ModuleType) -> Iterator[importlib.machinery.ModuleS
         Raised when the provided module is not a package.
     """
     if not is_package(package):
-        raise errors.ExpectedPackageError("Provided module is not a package.")
+        raise errors.NotPackageError("Provided module is not a package.")
     for finder, name, _ in pkgutil.iter_modules(package.__path__, package.__name__ + "."):
         spec = None
         if isinstance(finder, importlib.abc.MetaPathFinder):
@@ -99,7 +140,7 @@ def get_module(name: str, package: Union[str, ModuleType, None] = None) -> Modul
     ----------
     name : str
         The absolute name of the module.
-    package : str | ModuleType | None
+    package : Union[str, ModuleType], optional
         If present, will perform a relative import from the specified package.
 
     Returns
