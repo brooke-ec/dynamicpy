@@ -1,15 +1,48 @@
-from typing import Union, Optional
-from dynamicpy import utils
+from typing import Union, Optional, Callable
 from types import ModuleType
+from dynamicpy import utils
+import logging
 
 __all__ = ("DynamicLoader",)
+
+_log = logging.getLogger(__name__)
+
+Handler = Callable[[str, object], None]
+
+Selector = Callable[[str, object], bool]
 
 
 class DynamicLoader:
     # TODO: Add docstring
 
     def __init__(self) -> None:
-        pass
+        self._handlers: list[_SelectorHandlerPair] = []
+
+    def register_handler(self, selector: Selector, handler: Handler):
+        """Register a handler for the specified selector.
+
+        Parameters
+        ----------
+        selector : Callable[[str, object], bool]
+            A predicate that will be run against every global. If `True` is returned then the global passed to the handler.
+        handler : Callable[[str, object], None]
+            The handler to be called if the predicate returns `True`.
+        """
+        self._handlers.append(_SelectorHandlerPair(selector, handler))
+
+    def register(self, selector: Selector):
+        """A wrapper around around the `register_handler` function to be used as a decorator.
+
+        Parameters
+        ----------
+        selector : Selector
+            A predicate that will be run against every global. If `True` is returned then the global passed to the handler.
+        """
+
+        def decorator(handler: Handler):
+            self.register_handler(selector, handler)
+
+        return decorator
 
     def search_module(
         self,
@@ -37,6 +70,8 @@ class DynamicLoader:
         self._search_module(module, recursion_depth)
 
     def _search_module(self, module: ModuleType, recursion_depth: Union[int, None]):
+        _log.debug("Searching module '%s'", module.__name__)
+
         # Recursively Search Submodules
         infinite = recursion_depth is None
         if (infinite or recursion_depth > 0) and utils.is_package(module):
@@ -55,4 +90,17 @@ class DynamicLoader:
             if name.startswith("_"):
                 continue
 
-            print(name, type(value))
+            # Iterate through handlers
+            for handler in self._handlers:
+                handler.handle(name, value)
+
+
+class _SelectorHandlerPair:
+    def __init__(self, selector: Selector, handler: Handler) -> None:
+        self.selector = selector
+        self.handler = handler
+
+    def handle(self, name: str, value: object):
+        # Run handler if selector applies to global
+        if self.selector(name, value):
+            self.handler(name, value)
