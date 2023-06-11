@@ -13,9 +13,10 @@ Selector = Callable[[str, object], bool]
 
 
 class DynamicLoader:
-    # TODO: Add docstring
+    """An instance of `DynamicLoader` can be used to dynamically import modules and handle their globals through registered handlers."""
 
     def __init__(self) -> None:
+        """An instance of `DynamicLoader` can be used to dynamically import modules and handle their globals through registered handlers."""
         self._handlers: list[_SelectorHandlerPair] = []
 
     def register_handler(self, handler: Handler, selector: Optional[Selector] = None):
@@ -45,13 +46,13 @@ class DynamicLoader:
 
         return decorator
 
-    def search_module(
+    def load_module(
         self,
         path: str,
         package: Optional[str] = None,
         recursion_depth: Optional[int] = None,
     ) -> None:
-        """Recursively search the specified module.
+        """Recursively load the specified module and submodules and handle globals with registered handlers.
 
         Parameters
         ----------
@@ -66,14 +67,14 @@ class DynamicLoader:
         ------
         ImportError
             Raised when there is an error importing a module.
-        """  # TODO: Improve Summary
+        """
         module = utils.get_module(path, package)
-        self._search_module(module, recursion_depth)
+        self._load_module(module, recursion_depth)
 
-    def _search_module(self, module: ModuleType, recursion_depth: Union[int, None]):
+    def _load_module(self, module: ModuleType, recursion_depth: Union[int, None]):
         _log.debug("Searching module '%s'", module.__name__)
 
-        # Recursively Search Submodules
+        # Recursively Load Submodules
         infinite = recursion_depth is None
         if (infinite or recursion_depth > 0) and utils.is_package(module):
             for spec in utils.iter_submodules(module):
@@ -81,9 +82,9 @@ class DynamicLoader:
                 if spec.name.startswith("_"):
                     continue
 
-                # Import and Search Submodule
+                # Import and Load Submodule
                 submodule = utils.get_module(spec.name)
-                self._search_module(submodule, None if infinite else recursion_depth - 1)
+                self._load_module(submodule, None if infinite else recursion_depth - 1)
 
         # Search Globals
         for name, value in vars(module).items():
