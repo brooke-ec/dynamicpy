@@ -8,6 +8,7 @@ packages = [{ include = "dynamicpy", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
+typeguard = "^4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8-length = "^0.3.1"
