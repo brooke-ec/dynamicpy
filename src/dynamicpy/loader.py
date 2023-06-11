@@ -18,19 +18,20 @@ class DynamicLoader:
     def __init__(self) -> None:
         self._handlers: list[_SelectorHandlerPair] = []
 
-    def register_handler(self, selector: Selector, handler: Handler):
+    def register_handler(self, handler: Handler, selector: Optional[Selector] = None):
         """Register a handler for the specified selector.
 
         Parameters
         ----------
-        selector : Callable[[str, object], bool]
-            A predicate that will be run against every global. If `True` is returned then the global passed to the handler.
         handler : Callable[[str, object], None]
             The handler to be called if the predicate returns `True`.
+        selector : Callable[[str, object], bool], optional
+            A predicate that will be run against every global. If `True` is returned then the global passed to the handler.
         """
+        selector = selector or (lambda x, y: True)
         self._handlers.append(_SelectorHandlerPair(selector, handler))
 
-    def register(self, selector: Selector):
+    def register(self, selector: Optional[Selector] = None):
         """A wrapper around around the `register_handler` function to be used as a decorator.
 
         Parameters
@@ -40,7 +41,7 @@ class DynamicLoader:
         """
 
         def decorator(handler: Handler):
-            self.register_handler(selector, handler)
+            self.register_handler(handler, selector)
 
         return decorator
 
