@@ -2,6 +2,8 @@ __all__ = (
     "DynamicModulesError",
     "NotPackageError",
     "NoParentError",
+    "DuplicateDependencyError",
+    "DependencyNotFoundError",
 )
 
 
@@ -19,3 +21,11 @@ class NotPackageError(DynamicModulesError):
 
 class NoParentError(DynamicModulesError):
     """Exception raised when trying to get the parent of a top level module."""
+
+
+class DuplicateDependencyError(DynamicModulesError):
+    """Exception raised when trying to add a dependency to a `DependencyLibrary` which already has a dependency of that type."""
+
+
+class DependencyNotFoundError(DynamicModulesError):
+    """Exception raised when no dependency could be find in the `DependencyLibrary` of that type."""
