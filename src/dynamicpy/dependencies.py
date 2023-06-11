@@ -99,7 +99,7 @@ class DependencyLibrary:
     def __contains__(self, item: Union[type, object]) -> bool:
         if isinstance(item, type):
             try:
-                self[type]
+                self[item]
             except errors.DependencyNotFoundError:
                 return False
             else:
