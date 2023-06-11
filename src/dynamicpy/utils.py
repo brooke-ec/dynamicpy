@@ -158,7 +158,7 @@ def get_module(name: str, package: Union[str, ModuleType, None] = None) -> Modul
     return importlib.import_module(name, package)
 
 
-def get_module_parent(module: ModuleType) -> ModuleType:
+def get_module_parent(module: Union[ModuleType, str]) -> ModuleType:
     """Gets the parent package of the specified module.
 
     Parameters
@@ -176,8 +176,10 @@ def get_module_parent(module: ModuleType) -> ModuleType:
     NoParentError
         Raised when the specified module has no parent.
     """
+    if isinstance(module, ModuleType):
+        module = module.__name__
     try:
-        resolved = importlib.util.resolve_name("..", module.__name__)
+        resolved = importlib.util.resolve_name("..", module)
     except ImportError:
-        raise errors.NoParentError(f"{module.__name__} is a top level module.")
+        raise errors.NoParentError(f"'{module}' does not have a parent.")
     return get_module(resolved)

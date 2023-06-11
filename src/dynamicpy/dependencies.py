@@ -66,6 +66,12 @@ class DependencyLibrary:
         kwargs = {}
         # Iterate through function parameters
         for parameter in signature.parameters.values():
+            # Raise error if parameter has no type annotations
+            if parameter.annotation is inspect._empty:
+                raise errors.InjectDependenciesError(
+                    f"Parameter '{parameter.name}' is missing type annotations."
+                )
+
             try:
                 # Attempt to find dependency in library
                 value = self[parameter.annotation]

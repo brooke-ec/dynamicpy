@@ -32,7 +32,7 @@ class DynamicLoader:
         selector = selector or (lambda x, y: True)
         self._handlers.append(_SelectorHandlerPair(selector, handler))
 
-    def register(self, selector: Optional[Selector] = None):
+    def handler(self, selector: Optional[Selector] = None):
         """A wrapper around around the `register_handler` function to be used as a decorator.
 
         Parameters
