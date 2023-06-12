@@ -117,7 +117,7 @@ def iter_submodules(package: ModuleType) -> Iterator[importlib.machinery.ModuleS
             yield spec
 
 
-def is_package(module: ModuleType) -> bool:
+def is_package(module: Union[str, ModuleType]) -> bool:
     """Checks if the given module is a package.
 
     Parameters
@@ -130,6 +130,8 @@ def is_package(module: ModuleType) -> bool:
     bool
         True if the provided module is a package.
     """
+    if isinstance(module, str):
+        module = get_module(module)
     return hasattr(module, "__path__")
 
 
@@ -158,17 +160,17 @@ def get_module(name: str, package: Union[str, ModuleType, None] = None) -> Modul
     return importlib.import_module(name, package)
 
 
-def get_module_parent(module: Union[ModuleType, str]) -> ModuleType:
+def get_module_parent(module: Union[ModuleType, str]) -> str:
     """Gets the parent package of the specified module.
 
     Parameters
     ----------
-    module : ModuleType
+    module : str
         The module to get the parent of.
 
     Returns
     -------
-    ModuleType
+    str
         The parent package of the specified module.
 
     Raises
@@ -182,4 +184,4 @@ def get_module_parent(module: Union[ModuleType, str]) -> ModuleType:
         resolved = importlib.util.resolve_name("..", module)
     except ImportError:
         raise errors.NoParentError(f"'{module}' does not have a parent.")
-    return get_module(resolved)
+    return resolved
