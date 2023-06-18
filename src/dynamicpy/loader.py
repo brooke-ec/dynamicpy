@@ -32,7 +32,7 @@ class DynamicLoader:
         selector = selector or (lambda x, y: True)
         self._handlers.append(_SelectorHandlerPair(selector, handler))
 
-    def handler(self, selector: Optional[Selector] = None):
+    def handler(self, selector: Optional[Selector] = None) -> Callable[[Handler], None]:
         """A wrapper around around the `register_handler` function to be used as a decorator.
 
         Parameters
@@ -41,10 +41,27 @@ class DynamicLoader:
             A predicate that will be run against every global. If `True` is returned then the global passed to the handler.
         """
 
-        def decorator(handler: Handler):
+        def decorator(handler: Handler) -> None:
             self.register_handler(handler, selector)
 
         return decorator
+
+    def load_object(self, object: object) -> None:
+        """Handle the attributes of the specified object with registered handlers.
+
+        Parameters
+        ----------
+        object : object
+            The object to load.
+        """
+        for name, value in vars(object).items():
+            # Ignore Private and Built-In Attributes
+            if name.startswith("_"):
+                continue
+
+            # Iterate through handlers
+            for handler in self._handlers:
+                handler.handle(name, value)
 
     def load_module(
         self,
@@ -87,14 +104,7 @@ class DynamicLoader:
                 self._load_module(submodule, None if infinite else recursion_depth - 1)
 
         # Search Globals
-        for name, value in vars(module).items():
-            # Ignore Private and Built-In Attributes
-            if name.startswith("_"):
-                continue
-
-            # Iterate through handlers
-            for handler in self._handlers:
-                handler.handle(name, value)
+        self.load_object(module)
 
 
 class _SelectorHandlerPair:
