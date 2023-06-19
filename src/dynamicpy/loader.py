@@ -1,7 +1,8 @@
-from typing import Union, Optional, Callable
-from types import ModuleType
-from dynamicpy import utils
 import logging
+from types import ModuleType
+from typing import Callable, Optional, Union
+
+from dynamicpy import utils
 
 __all__ = ("DynamicLoader",)
 

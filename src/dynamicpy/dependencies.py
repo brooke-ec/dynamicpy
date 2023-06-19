@@ -1,8 +1,10 @@
-from typing import Union, TypeVar, Type, Callable
-from typeguard import check_type, TypeCheckError
-from dynamicpy import errors
 import inspect
 import logging
+from typing import Callable, Type, TypeVar, Union
+
+from typeguard import TypeCheckError, check_type
+
+from dynamicpy import errors
 
 __all__ = ("DependencyLibrary",)
 

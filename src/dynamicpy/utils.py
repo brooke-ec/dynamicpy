@@ -1,12 +1,13 @@
-import dynamicpy.errors as errors
-from typing import Iterator, Union
-from types import ModuleType
+import importlib
+import importlib.abc
 import importlib.machinery
 import importlib.util
-import importlib.abc
-import importlib
 import pkgutil
 import sys
+from types import ModuleType
+from typing import Iterator, Union
+
+import dynamicpy.errors as errors
 
 __all__ = (
     "iter_stack_modules",
