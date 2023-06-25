@@ -94,10 +94,12 @@ class DynamicLoader:
         object : object
             The object to load.
         """
-        for name, value in vars(object).items():
+        for name in dir(object):
             # Ignore Private and Built-In Attributes
             if name.startswith("_"):
                 continue
+
+            value = getattr(object, name)
 
             # Iterate through handlers
             for handler in self._handlers:
