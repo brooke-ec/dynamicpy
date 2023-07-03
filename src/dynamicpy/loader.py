@@ -12,7 +12,7 @@ _log = logging.getLogger(__name__)
 
 T = TypeVar("T")
 Handler = Callable[[str, T], None]
-Selector = Callable[[str, object], bool]
+Selector = Callable[[str, Any], bool]
 
 
 class DynamicLoader:
@@ -27,9 +27,9 @@ class DynamicLoader:
 
         Parameters
         ----------
-        handler : Callable[[str, object], None]
+        handler : Callable[[str, Any], None]
             The handler to be called if the predicate returns `True`.
-        selector : Callable[[str, object], bool], optional
+        selector : Callable[[str, Any], bool], optional
             A predicate that will be run against every attribute. If `True` is returned then the atribute passed to the handler.
         """
         selector = selector or (lambda x, y: True)
@@ -56,13 +56,13 @@ class DynamicLoader:
 
         Parameters
         ----------
-        handler : Callable[[str, object], None]
+        handler : Callable[[str, Any], None]
             The handler to be called if the attribute matches the specified type.
         type : Type
             The type to match against.
         """
 
-        def selector(_, value: object):
+        def selector(_, value: Any):
             try:
                 check_type(value, type)
             except TypeCheckError:
@@ -86,12 +86,12 @@ class DynamicLoader:
 
         return decorator
 
-    def load_object(self, object: object) -> None:
+    def load_object(self, object: Any) -> None:
         """Handle the attributes of the specified object with registered handlers.
 
         Parameters
         ----------
-        object : object
+        object : Any
             The object to load.
         """
         for name in dir(object):
@@ -157,7 +157,7 @@ class _SelectorHandlerPair:
         self.selector = selector
         self.handler = handler
 
-    def handle(self, name: str, value: object):
+    def handle(self, name: str, value: Any):
         # Run handler if selector applies to attribute
         if self.selector(name, value):
             self.handler(name, value)

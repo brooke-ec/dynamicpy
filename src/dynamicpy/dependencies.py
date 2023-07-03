@@ -1,6 +1,6 @@
 import inspect
 import logging
-from typing import Callable, Type, TypeVar, Union
+from typing import Any, Callable, Type, TypeVar, Union
 
 from typeguard import TypeCheckError, check_type
 
@@ -18,14 +18,14 @@ class DependencyLibrary:
 
     def __init__(self) -> None:
         """An instance of `DependencyLibrary` can be used to build up a library of objects that can be injected into functions by type."""
-        self._library: list[object] = []
+        self._library: list[Any] = []
 
-    def add(self, dependency: object):
+    def add(self, dependency: Any):
         """Adds a dependency to the library.
 
         Parameters
         ----------
-        dependency : object
+        dependency : Any
             The dependency to add to the library,
 
         Raises
@@ -98,7 +98,7 @@ class DependencyLibrary:
 
         return func(*args, **kwargs)
 
-    def __contains__(self, item: Union[type, object]) -> bool:
+    def __contains__(self, item: Union[type, Any]) -> bool:
         if isinstance(item, type):
             try:
                 self[item]
