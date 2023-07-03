@@ -99,7 +99,10 @@ class DynamicLoader:
             if name.startswith("_"):
                 continue
 
-            value = getattr(object, name)
+            try:
+                value = getattr(object, name)
+            except AttributeError:
+                continue
 
             # Iterate through handlers
             for handler in self._handlers:
