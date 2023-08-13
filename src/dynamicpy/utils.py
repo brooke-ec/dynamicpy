@@ -5,7 +5,7 @@ import importlib.util
 import pkgutil
 import sys
 from types import ModuleType
-from typing import Callable, Iterator, Protocol, Type, TypeVar, Union
+from typing import Any, Callable, Generic, Iterator, Protocol, Type, TypeVar, Union
 
 from typing_extensions import ParamSpec
 
@@ -24,7 +24,7 @@ __all__ = (
 )
 
 P = ParamSpec("P")
-FuncT = TypeVar("FuncT", bound=Callable)
+T = TypeVar("T")
 
 
 def iter_stack_modules(offset: int = 1) -> Iterator[str]:
@@ -195,15 +195,17 @@ def get_module_parent(module: Union[ModuleType, str]) -> str:
     return resolved
 
 
-def _functionify(func: FuncT) -> FuncT:
-    return func
+class _functionify(staticmethod, Generic[P, T]):
+    def __init__(self, func: Callable[P, T]) -> None:
+        super().__init__(func)
+        self.func = func
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.func(*args, **kwds)  # type: ignore
 
 
-functionify: Type[staticmethod] = _functionify  # type: ignore
-"""A decorator to convert a method into normal function.
-
-This differs from the `staticmethod` decorator which returns a `staticmethod` instance rather than just a normal function.
-"""
+functionify: Type[staticmethod] = _functionify
+"""A callable version of the `staticmethod` decorator."""
 
 
 class ConstructorProtocol(Protocol[P]):
