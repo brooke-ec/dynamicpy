@@ -5,7 +5,9 @@ import importlib.util
 import pkgutil
 import sys
 from types import ModuleType
-from typing import Iterator, Union
+from typing import Callable, Iterator, Protocol, Type, TypeVar, Union
+
+from typing_extensions import ParamSpec
 
 import dynamicpy.errors as errors
 
@@ -17,7 +19,12 @@ __all__ = (
     "get_module_parent",
     "is_package",
     "get_module",
+    "ConstructorProtocol",
+    "functionify",
 )
+
+P = ParamSpec("P")
+FuncT = TypeVar("FuncT", bound=Callable)
 
 
 def iter_stack_modules(offset: int = 1) -> Iterator[str]:
@@ -186,3 +193,20 @@ def get_module_parent(module: Union[ModuleType, str]) -> str:
     except ImportError:
         raise errors.NoParentError(f"'{module}' does not have a parent.")
     return resolved
+
+
+def _functionify(func: FuncT) -> FuncT:
+    return func
+
+
+functionify: Type[staticmethod] = _functionify  # type: ignore
+"""A decorator to convert a method into normal function.
+
+This differs from the `staticmethod` decorator which returns a `staticmethod` instance rather than just a normal function.
+"""
+
+
+class ConstructorProtocol(Protocol[P]):
+    """A protocol to retrieve a class' constructor parameters into the `ParamSpec`, `P`"""
+
+    __init__: Callable[P, None]

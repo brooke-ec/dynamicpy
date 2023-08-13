@@ -15,12 +15,15 @@ from dynamicpy.errors import (
 )
 from dynamicpy.loader import DynamicLoader
 from dynamicpy.utils import (
+    ConstructorProtocol,
+    functionify,
     get_foreign_module,
     get_module,
     get_module_parent,
     get_stack_module_up,
     is_package,
 )
+from dynamicpy.widgets import BaseWidget
 
 __all__ = (
     "DynamicLoader",
@@ -28,6 +31,8 @@ __all__ = (
     "DynamicPyError",
     "NoForeignModulesError",
     "NoParentError",
+    "ConstructorProtocol",
+    "functionify",
     "get_foreign_module",
     "get_module_parent",
     "get_stack_module_up",
@@ -36,4 +41,5 @@ __all__ = (
     "DependencyNotFoundError",
     "DuplicateDependencyError",
     "InjectDependenciesError",
+    "BaseWidget",
 )
