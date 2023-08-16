@@ -1,3 +1,4 @@
+import contextlib
 import logging
 from types import ModuleType
 from typing import Any, Callable, Optional, Type, TypeVar, Union
@@ -5,6 +6,7 @@ from typing import Any, Callable, Optional, Type, TypeVar, Union
 from typeguard import TypeCheckError, check_type
 
 from dynamicpy import utils
+from dynamicpy.widgets import BaseWidget
 
 __all__ = ("DynamicLoader",)
 
@@ -13,6 +15,9 @@ _log = logging.getLogger(__name__)
 T = TypeVar("T")
 Handler = Callable[[str, T], None]
 Selector = Callable[[str, Any], bool]
+
+WidgetT = TypeVar("WidgetT", bound=BaseWidget)
+WidgetHandler = Callable[[WidgetT], None]
 
 
 class DynamicLoader:
@@ -62,7 +67,7 @@ class DynamicLoader:
             The type to match against.
         """
 
-        def selector(_, value: Any):
+        def selector(_, value: Any) -> bool:
             try:
                 check_type(value, type)
             except TypeCheckError:
@@ -83,6 +88,28 @@ class DynamicLoader:
 
         def decorator(handler: Handler[T]) -> None:
             self.register_type_handler(handler, type)
+
+        return decorator
+
+    def register_widget_handler(
+        self,
+        widget: Type[WidgetT],
+        handler: WidgetHandler[WidgetT],
+    ):
+        def wrapper(_, value: Any):
+            with contextlib.suppress(AttributeError):
+                for entry in BaseWidget.get_associations(value, create=False):
+                    if isinstance(entry, widget):
+                        handler(entry)
+
+        self.register_handler(wrapper)
+
+    def widget_handler(
+        self, widget: Type[WidgetT]
+    ) -> Callable[[WidgetHandler[WidgetT]], WidgetHandler[WidgetT]]:
+        def decorator(handler: WidgetHandler[WidgetT]) -> WidgetHandler[WidgetT]:
+            self.register_widget_handler(widget, handler)
+            return handler
 
         return decorator
 
