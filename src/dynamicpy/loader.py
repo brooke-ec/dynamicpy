@@ -42,7 +42,7 @@ class DynamicLoader:
 
     def handler(
         self, selector: Optional[Selector] = None
-    ) -> Callable[[Handler[Any]], None]:
+    ) -> Callable[[Handler[Any]], Handler[Any]]:
         """A wrapper around around the `register_handler` function to be used as a decorator.
 
         Parameters
@@ -51,8 +51,9 @@ class DynamicLoader:
             A predicate that will be run against every attribute. If `True` is returned then the atribute passed to the handler.
         """
 
-        def decorator(handler: Handler[Any]) -> None:
+        def decorator(handler: Handler[Any]) -> Handler[Any]:
             self.register_handler(handler, selector)
+            return handler
 
         return decorator
 
@@ -77,7 +78,7 @@ class DynamicLoader:
 
         self.register_handler(handler, selector)
 
-    def type_handler(self, type: Type[T]) -> Callable[[Handler[T]], None]:
+    def type_handler(self, type: Type[T]) -> Callable[[Handler[T]], Handler[T]]:
         """A wrapper around around the `register_type_handler` function to be used as a decorator.
 
         Parameters
@@ -86,8 +87,9 @@ class DynamicLoader:
             The type to run the handler on if an assignable attribute is found.
         """
 
-        def decorator(handler: Handler[T]) -> None:
+        def decorator(handler: Handler[T]) -> Handler[T]:
             self.register_type_handler(handler, type)
+            return handler
 
         return decorator
 
