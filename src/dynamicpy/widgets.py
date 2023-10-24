@@ -23,11 +23,29 @@ WidgetAssociator = Callable[Concatenate[Type[ConstructorProtocol[P]], P], None]
 
 
 class BaseWidget(ABC, Generic[T]):
+    """Helper class for making 'widgets' with callback functions, created using a constructor."""
+
     def __init__(self, callback: T) -> None:
+        """Helper class for making 'widgets' with callback functions, created using a constructor."""
         self._callback = callback
 
     @staticmethod
-    def get_associations(obj: Any, *, create: bool = True) -> list[BaseWidget]:
+    def get_associations(obj: Callable, *, create: bool = True) -> list[BaseWidget]:
+        """Gets the widget associations of the specified function.
+
+        Parameters
+        ----------
+        obj : Callable
+            The function to get the widget associations of.
+        create : bool, optional
+            Wether to create the associations attribute if it does not exist, by default True
+
+        Returns
+        -------
+        list[BaseWidget]
+            The list of widgets associated with this object.
+        """
+
         if create and not hasattr(obj, ASSOCIATION_ATTRIBUTE):
             setattr(obj, ASSOCIATION_ATTRIBUTE, [])
 
@@ -42,6 +60,13 @@ class BaseWidget(ABC, Generic[T]):
         return wrapper  # type: ignore
 
     associate = classmethod(_generate_associator())
+    """Associate the specified function with this widget.
+
+    Parameters
+    ----------
+    callback : Callable
+        The function to associate this widget with.
+    """
 
     @functionify
     def _generate_decorator() -> WidgetDecorator[P, T]:
@@ -55,6 +80,7 @@ class BaseWidget(ABC, Generic[T]):
         return wrapper  # type: ignore
 
     decorate = classmethod(_generate_decorator())
+    """Decorator around the `associate` function."""
 
     @property
     def callback(self) -> T:

@@ -98,6 +98,16 @@ class DynamicLoader:
         widget: Type[WidgetT],
         handler: WidgetHandler[WidgetT],
     ):
+        """Register a handler that matches for widgets of the specified type.
+
+        Parameters
+        ----------
+        widget : Type[BaseWidget]
+            The widget type to run the handler on.
+        handler : Callable[[BaseWidget], None]
+            The handler function to run on widgets of the type of the `widget` parameter.
+        """
+
         def wrapper(_, value: Any):
             with contextlib.suppress(AttributeError):
                 for entry in BaseWidget.get_associations(value, create=False):
@@ -109,6 +119,14 @@ class DynamicLoader:
     def widget_handler(
         self, widget: Type[WidgetT]
     ) -> Callable[[WidgetHandler[WidgetT]], WidgetHandler[WidgetT]]:
+        """A wrapper around around the `register_widget_handler` function to be used as a decorator.
+
+        Parameters
+        ----------
+        widget : Type[BaseWidget]
+            The widget type to run the handler on.
+        """
+
         def decorator(handler: WidgetHandler[WidgetT]) -> WidgetHandler[WidgetT]:
             self.register_widget_handler(widget, handler)
             return handler
