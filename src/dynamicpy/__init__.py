@@ -4,6 +4,10 @@ A python module for dynamically interacting with objects to improve expandabilit
 https://github.com/NimajnebEC/dynamicpy
 """
 
+
+__version__ = "${pyproject.tool.poetry.version}"
+__author__ = "${pyproject.tool.poetry.authors.0}"
+
 from dynamicpy.dependencies import DependencyLibrary
 from dynamicpy.errors import (
     DependencyNotFoundError,
