@@ -1,8 +1,14 @@
-# DynamicPy
+# DynamicPy <!-- omit from toc -->
 
 A python module for dynamically interacting with objects to improve expandability.
 
-## DynamicLoader
+### Features
+
+- [Dynamic Loader](#dynamic-loader)
+- [Dependency Library](#dependency-library)
+- [Widgets](#widgets)
+
+## Dynamic Loader
 
 The `DynamicLoader` class allows for the dynamic import of modules and the scraping of their globals.
 
@@ -22,9 +28,9 @@ def handler(name: str, value: object):
 loader.load_module("package.module")
 ```
 
-Dynamicpy provides a handful of utility functions to traverse modules in the stack which can be useful for streamlining this process.
+DynamicPy provides a handful of utility functions to traverse modules in the stack which can be useful for streamlining this process.
 
-## DependencyLibrary
+## Dependency Library
 
 The `DependencyLibrary` class allows you to create a library of objects which can then be injected into function parameters using type annotations.
 
@@ -60,4 +66,37 @@ def injected(message: str):
     print(message) # Hello World!
 
 library.inject(injected)
+```
+
+## Widgets
+
+DynamicPy contains a helper for making 'widgets' with callback functions which are created using a decorator. Configure your widget by extending the `BaseWidget` class. Set the type parameter to configure the expected callback type.
+
+```py
+from typing import Any, Callable
+from dynamicpy import BaseWidget
+
+class ExampleWidget(BaseWidget[Callable[[str], Any]]):
+    def __init__(self, callback: Callable[[str], Any], enabled: bool) -> None:
+        super().__init__(callback)
+```
+
+DynamicPy will automatically generate a `BaseWidget.decorate` function based off your constructor.
+
+```py
+@ExampleWidget.decorate(enabled=False)
+def example(message: str):
+    print(message)
+```
+
+This will add an attribute to the function, containing an instance of your widget. This can be easily retrieved using a [Dynamic Loader](#dynamic-loader)'s `register_widget_handler` method or `widget_handler` decorator.
+
+```py
+from dynamicpy import DynamicLoader
+
+loader = DynamicLoader()
+
+@loader.widget_handler(ExampleWidget)
+def widget_handler(widget: ExampleWidget):
+    widget.callback("Hello World!")  # prints "Hello World!"
 ```
