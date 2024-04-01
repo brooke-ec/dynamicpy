@@ -1,4 +1,3 @@
-import contextlib
 import logging
 from types import ModuleType
 from typing import Any, Callable, Optional, Type, TypeVar, Union
@@ -109,8 +108,12 @@ class DynamicLoader:
         """
 
         def wrapper(_, value: Any):
-            with contextlib.suppress(AttributeError):
-                for entry in BaseWidget.get_associations(value, create=False):
+            try:
+                associations = BaseWidget.get_associations(value, create=False)
+            except AttributeError:
+                return
+            else:
+                for entry in associations:
                     if isinstance(entry, widget):
                         handler(entry)
 
