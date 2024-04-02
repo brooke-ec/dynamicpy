@@ -26,7 +26,7 @@ jobs:
         uses: snok/install-poetry@v1
 
       - name: Install Poetry Plugins
-        run: poetry self add poetry-templating
+        run: poetry self add poetry-templating@latest
 
       - name: Build Package Distributions
         run: poetry build
