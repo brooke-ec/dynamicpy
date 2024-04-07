@@ -90,7 +90,7 @@ class FieldMetadata:
                 value = factory(value)
             elif self.options.cast is not None:
                 value = self.options.cast(value)
-            elif not self.options.strict:
+            elif self.options.strict:
                 raise TypeError(
                     f"Value of type {type(value)} is not assignable to field '{self.qualname}'"
                 ) from e
