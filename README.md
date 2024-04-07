@@ -7,6 +7,7 @@ A python module for dynamically interacting with objects to improve expandabilit
 - [Dynamic Loader](#dynamic-loader)
 - [Dependency Library](#dependency-library)
 - [Widgets](#widgets)
+- [Models](#models)
 
 ## Dynamic Loader
 
@@ -99,4 +100,48 @@ loader = DynamicLoader()
 @loader.widget_handler(ExampleWidget)
 def widget_handler(widget: ExampleWidget):
     widget.callback("Hello World!")  # prints "Hello World!"
+```
+
+## Models
+
+DynamicPy provides its own system similar to [dataclasses](https://docs.python.org/3/library/dataclasses.html) called models which are designed to aid in data validation and type hinting. A model can be defined by simply extending the `dynamicpy.Model` class and specifying fields. These fields can be populated using the model's constructor.
+
+```py
+from dynamicpy import Model
+
+class User(Model):
+    gid: int
+    name: str
+    avatar: str
+
+User(guid=123, name="John Doe", avatar="https://bit.ly/3J73JHU")
+```
+
+Behaviour can be further configured using the `dynamicpy.field` function.
+
+```py
+from dynamicpy import Model, field
+
+class User(Model):
+    gid: int = field(cast=int)
+    name: str = field(default="Unnamed")
+    avatar: str = "https://bit.ly/3J73JHU" # default alternative
+
+User(guid="123")
+```
+
+Models will also recursively load types with a `from_dict` classmethod (including other models).
+
+```py
+from dynamicpy import Model
+
+class User(Model):
+    gid: int
+    name: str
+
+class Post(Model):
+    title: str
+    author: User
+
+Post.from_dict({"title": "Lorem Ipsum", "author": {"gid": 123, "name": "John Doe"}})
 ```

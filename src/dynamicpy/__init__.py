@@ -18,6 +18,7 @@ from dynamicpy.errors import (
     NoParentError,
 )
 from dynamicpy.loader import DynamicLoader
+from dynamicpy.model import Model, field
 from dynamicpy.utils import (
     ConstructorProtocol,
     functionify,
@@ -46,4 +47,6 @@ __all__ = (
     "DuplicateDependencyError",
     "InjectDependenciesError",
     "BaseWidget",
+    "Model",
+    "field",
 )
